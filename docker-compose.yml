@@ -1,0 +1,55 @@
+services:
+  mongo:
+    image: mongo:7
+    container_name: visiontrack-mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-visiontrack}
+    volumes:
+      - mongo_data:/data/db
+    ports:
+      - "27017:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  backend:
+    build:
+      context: .
+      dockerfile: docker/backend.Dockerfile
+    container_name: visiontrack-backend
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    environment:
+      VISIONTRACK_MODE: api
+      API_PORT: ${API_PORT:-8000}
+      MONGO_URI: ${MONGO_URI:-mongodb://mongo:27017}
+      MONGO_DB: ${MONGO_DB:-visiontrack}
+      SNAPSHOT_INTERVAL_SECONDS: ${SNAPSHOT_INTERVAL_SECONDS:-2.0}
+      VISIONTRACK_CONFIDENCE_THRESHOLD: ${VISIONTRACK_CONFIDENCE_THRESHOLD:-0.5}
+      VISIONTRACK_TRACKER_FRAME_RATE: ${VISIONTRACK_TRACKER_FRAME_RATE:-3.0}
+      VISIONTRACK_LINE_Y: ${VISIONTRACK_LINE_Y:-300}
+      CORS_ORIGINS: ${CORS_ORIGINS:-http://localhost:5173,http://localhost:8080}
+    ports:
+      - "${API_PORT:-8000}:8000"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:8000}
+    container_name: visiontrack-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+
+volumes:
+  mongo_data:

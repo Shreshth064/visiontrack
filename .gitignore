@@ -1,0 +1,18 @@
+# Environment
+.env
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Notebook
+notebooks/.ipynb_checkpoints/
+notebooks/sample.jpg
+**/__pycache__/
+
+# Executed-notebook artifact produced by the backend Docker image
+executed_visiontrack_ml.ipynb
+
+# OS
+.DS_Store
+.env

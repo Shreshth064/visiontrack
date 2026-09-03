@@ -1,0 +1,22 @@
+# These are exactly the packages installed by the "%pip install" cell in
+# visiontrack_ml.ipynb (Section 1) -- the notebook remains the single
+# source of truth for the ML/service code, this file just lets Docker
+# install the same dependencies without opening Jupyter.
+tensorflow
+tensorflow-hub
+opencv-python
+numpy
+supervision
+trackers
+matplotlib
+pymongo
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Needed only to *execute* the notebook headlessly inside the container
+# (jupyter nbconvert --execute). Not part of the ML pipeline itself.
+jupyter
+nbconvert
+nbclient
+ipykernel
